@@ -16,13 +16,13 @@ function initialize_canvas() {
 	ctx.globalCompositeOperation = 'destination-over';
 	// Draw a circle
 	ctx.clearRect(0, 0, c.width, c.height); // clear canvas
-	ctx.beginPath();
-	ctx.arc(400,400,40,0,2*Math.PI);
-	ctx.stroke();
 }
 // Initialize the websocket
-var ws = new WebSocket("ws://stevensheffey.me:5977", "heroesoftheswarm")
+var ws = new WebSocket("ws://159.203.171.13:8080", "heroesoftheswarm");
 ws.onmessage = function (event) {
+  console.log(event.data);
+}
+ws.onerror= function (event) {
   console.log(event.data);
 }
 </script>
