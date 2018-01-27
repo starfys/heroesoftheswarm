@@ -20,6 +20,11 @@ function initialize_canvas() {
 	ctx.arc(400,400,40,0,2*Math.PI);
 	ctx.stroke();
 }
+// Initialize the websocket
+var ws = new WebSocket("ws://stevensheffey.me:5977", "heroesoftheswarm")
+ws.onmessage = function (event) {
+  console.log(event.data);
+}
 </script>
 <style>
 * { margin: 0; padding: 0;}
