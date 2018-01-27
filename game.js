@@ -43,6 +43,7 @@ function frame(ctx, dt, frameN) {
             drawParticle(ctx, absolute_pos, 5, color, 'black', 2, swarm.direction);
         });
     });
+
 }
 
 function initializeCanvas() {
@@ -85,6 +86,7 @@ function initializeWebSocket(url, protocol, onmessage) {
     return ws;
 }
 
+
 function pingServer(ws, ctx) {
     if (PING_MODE == 'U') {
         ws.send("U");
@@ -94,6 +96,7 @@ function pingServer(ws, ctx) {
         ws.send(JSON.stringify(obj));
     }
     setTimeout(pingServer, 1000 / FPS / PINGS_PER_FRAME, ws, ctx);
+
 }
 
 function getState() {
