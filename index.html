@@ -18,7 +18,7 @@ function initialize_canvas() {
 	ctx.clearRect(0, 0, c.width, c.height); // clear canvas
 }
 // Initialize the websocket
-var ws = new WebSocket("ws://159.203.171.13:8080", "heroesoftheswarm");
+var ws = new WebSocket("ws://stevensheffey.me:8080", "heroesoftheswarm");
 ws.onmessage = function (event) {
   console.log(event.data);
 }
