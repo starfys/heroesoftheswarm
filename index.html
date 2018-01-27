@@ -3,27 +3,23 @@
 <head>
 <title>Heroes of the Swarm</title>
 <meta charset="UTF-8">
+
+<!-- I don't know what this is but it seems important -->
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-<!-- Optional theme -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-<style>
-* { margin: 0; padding: 0;}
+<!-- jQuery and popper, used for some Bootstrap stuff -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<!-- Bootstrap CSS and JS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
-body, html { height:100%; }
+<!-- Our CSS -->
+<link rel="stylesheet" href="main.css"/>
 
-textarea {
-	resize: none;
-	: 100%;
-	height: 100%;
-}
-</style>
-<!-- JQuery -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-<!-- Latest compiled and minified JavaScript -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<!-- Our JS -->
+<script type="text/javascript" src="game.js"></script>
 
+<!--
 <script type="text/javascript">
 function initialize_canvas() {
 	// Get the canvas
@@ -35,13 +31,13 @@ function initialize_canvas() {
 	ctx.clearRect(0, 0, game_canvas.width, game_canvas.height); // clear canvas
 	var centerX = game_canvas.width / 2;
 	var centerY = game_canvas.height / 2;
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, 10, 0, 2 * Math.PI, false);
-      ctx.fillStyle = 'green';
-      ctx.fill();
-      ctx.lineWidth = 5;
-      ctx.strokeStyle = '#003300';
-      ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 10, 0, 2 * Math.PI, false);
+    ctx.fillStyle = 'green';
+    ctx.fill();
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = '#003300';
+    ctx.stroke();
 }
 // Initialize the websocket
 var ws = new WebSocket("ws://159.203.171.13:8080", "heroesoftheswarm");
@@ -49,23 +45,30 @@ var ws = new WebSocket("ws://159.203.171.13:8080", "heroesoftheswarm");
 ws.onmessage = function (event) {
   console.log(event.data);
 }
-// This is run when something fucks up
+// This is run when something fscks up
 ws.onerror= function (event) {
   console.log(event.data);
 }
+-->
 </script>
 </head>
 <body>
-<div class="container">
-<div class="row">
-	<div class="col-lg-2">
-		<textarea id="code"></textarea>
-	</div>
-	<div class="col-md-10">
-		<canvas id="game_canvas">Your browser does not support Canvas. Please upgrade to a modern browser such as Mozilla Firefox</canvas>
-		<!-- Run the initialize function here, because it is guaranteed that the canvas has been loaded -->
-		<script type="text/javascript">initialize_canvas();</script>
-	</div>
+<div class="container-fluid">
+<div class="row" style="height: 10%">
+    <h2 class="ml-3 mt-3">Heroes of the Swarm</p>
+</div>
+<div class="row" style="height: 485px">
+    <div class="col-md-3">
+	          <textarea id="code" class="form-control"></textarea>
+              <button type="button" class="btn btn-success" style="margin-top: 10px">Upload to Swarm</button>
+    </div>
+    <div class="col-md-9">
+	          <canvas id="game_canvas" width="640" height="480">
+                  Your browser does not support Canvas. Please upgrade to a modern browser such as Mozilla Firefox
+              </canvas>
+	          <!-- Run the JS here, because it is guaranteed that the canvas has been loaded -->
+	          <script type="text/javascript">main();</script>
+    </div>
 </div>
 </div>
 </body>
