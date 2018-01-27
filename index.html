@@ -28,14 +28,17 @@
 <div class="row" style="height: 485px">
     <div class="col-md-3">
 	          <textarea id="code" class="form-control"></textarea>
-              <button type="button" class="btn btn-success" style="margin-top: 10px">Upload to Swarm</button>
+              <button type="button" class="btn btn-success" style="margin-top: 10px" id="upload-button">
+                  Upload to Swarm
+              </button>
     </div>
     <div class="col-md-9">
 	          <canvas id="game_canvas" width="640" height="480">
                   Your browser does not support Canvas. Please upgrade to a modern browser such as Mozilla Firefox
               </canvas>
 	          <!-- Run the JS here, because it is guaranteed that the canvas has been loaded -->
-	          <script type="text/javascript">main();</script>
+	          <script type="text/javascript">init();</script>
+
     </div>
 </div>
 </div>
