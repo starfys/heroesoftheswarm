@@ -18,42 +18,30 @@
 
 <!-- Our JS -->
 <script type="text/javascript" src="game.js"></script>
+<script type="text/javascript" src="popover.js"></script>
 
 </head>
 <body>
 <div class="container-fluid">
 <div class="row" style="height: 10%">
-    <h2 class="ml-3 mt-3">Heroes of the Swarm</p>
-</div>
-<div class="row" style="height: 485px">
-    <div class="col-md-3">
-	          <textarea id="code" class="form-control"></textarea>
-             
-			  <button type="button" class="btn btn-danger btn-sm btn-block" style="margin-top: 10px" data-container="body" data-toggle="popover"
-				  data-placement="top" data-content="You Have a Syntax Error.  Check Your Code, and Resubmit."><strong>Warnings</strong>
-			  </button>
-			  <button type="button" class="btn btn-success" style="margin-top: 10px" id="upload-button">
-                  Upload to Swarm
-              </button>
-			  <button type="button" class="btn btn-success" style="margin-top: 10px" data-container="body" data-toggle="popover" data-placement="top" 
-			      data-content="Game instructions go here.">
-				  Info
-			  </button>
-			  <button type="button" class="btn btn-success" style="margin-top: 10px" data-container="body" data-toggle="popover" data-placement="right" 
-			      data-content="HiScores Go Here">
-				  HiScores
-			  </button>	
-
-
-			  
+    <div class="col-md-12">
+        <h2 class="ml-3 mt-3">Heroes of the Swarm</p>
     </div>
-    <div class="col-md-9">
+</div>
+<div class="row" style="height: 492px">
+    <div class="col-md-3">
+
+    </div>
+    <div class="col-md-6">
 	          <canvas id="game_canvas" width="640" height="480">
                   Your browser does not support Canvas. Please upgrade to a modern browser such as Mozilla Firefox
               </canvas>
 	          <!-- Run the JS here, because it is guaranteed that the canvas has been loaded -->
 	          <script type="text/javascript">init();</script>
-
+    </div>
+    <div class="col-md-3">
+        <h1 id="xp">0</h1>
+        <p>XP</p>
     </div>
 	
 </div>
