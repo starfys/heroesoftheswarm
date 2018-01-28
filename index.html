@@ -17,8 +17,8 @@
 <link rel="stylesheet" href="main.css"/>
 
 <!-- Our JS -->
+<script type="text/javascript" src="vec2.js"></script>
 <script type="text/javascript" src="game.js"></script>
-<script type="text/javascript" src="popover.js"></script>
 
 </head>
 <body>
@@ -42,21 +42,39 @@
 		data-content="Game instructions go here.">
 		      Info
 		</button>
-		<button type="button" class="btn btn-success" style="margin-top: 10px" data-container="body" data-toggle="popover" data-placement="right"
-		data-content="HiScores Go Here">
-		      HiScores
+		<button type="button" class="btn btn-danger invisible" style="margin-top: 10px" data-container="body" id="respawn" onclick="location.reload()">
+		      Respawn
 		</button>
     </div>
     <div class="col-md-6">
-	          <canvas id="game_canvas" width="640" height="480">
-                  Your browser does not support Canvas. Please upgrade to a modern browser such as Mozilla Firefox
+	          <canvas id="game_canvas" width="740" height="555">
+                  Your browser does not support the HTML5 &lt;canvas&gt; element. Please try a newer browser.
               </canvas>
 	          <!-- Run the JS here, because it is guaranteed that the canvas has been loaded -->
 	          <script type="text/javascript">init();</script>
     </div>
-    <div class="col-md-3">
-        <h1 id="xp">0</h1>
-        <p>XP</p>
+    <div class="col-md-2">
+        <h1 id="xp">0 XP</h1>
+        <p id="lvl">(<strong>300</strong> to next particle)</p>
+        <br>
+        <h3>Leaderboard</h3>
+        <table class="table table-bordered" id="leaderboard">
+            <tr>
+                <th scope="row">1</th>
+                <td><canvas id="leaderboardC0" width="25" height="25"/></td>
+                <td id="leaderboardS0"></td>
+            </tr>
+            <tr>
+                <th scope="row">2</th>
+                <td><canvas id="leaderboardC1" width="25" height="25"/></td>
+                <td id="leaderboardS1"></td>
+            </tr>
+            <tr>
+                <th scope="row">3</th>
+                <td><canvas id="leaderboardC2" width="25" height="25"/></td>
+                <td id="leaderboardC2"></td>
+            </tr>
+        </table>
     </div>
 </div>
 </div>
