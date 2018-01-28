@@ -1,4 +1,4 @@
-const SERVER_URL = "ws://159.203.171.13:8080";
+const SERVER_URL = "wss://stevensheffey.me/ws";
 const PROTOCOL = "heroesoftheswarm";
 const FPS = 60;
 const PING_RATE = 30;
