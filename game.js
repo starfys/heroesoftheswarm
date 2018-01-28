@@ -1,4 +1,4 @@
-const SERVER_URL = "ws://159.203.171.13:8080";
+const SERVER_URL = "wss://stevensheffey.me/ws";
 const PROTOCOL = "heroesoftheswarm";
 const FPS = 60;
 const PING_RATE = 30;
@@ -10,6 +10,13 @@ const XP_LEVEL = 300;
 var GLOBAL_STATE_NO_TOUCH;
 var GLOBAL_CONFIG_NO_TOUCH;
 var BACKGROUND;
+
+// ESR forgive me, for I have sinned
+var GLOBAL_STATE_NO_TOUCH;
+
+var GLOBAL_CONFIG_NO_TOUCH;
+var BACKGROUND;
+
 
 function init() {
     var foo = 0;
@@ -37,6 +44,7 @@ function init() {
     });
     $(document).ready(function(){
         $('[data-toggle="popover"]').popover();
+
     });
 }
 
@@ -53,9 +61,11 @@ function frame(ctx, dt, frameN) {
         color = ints2HexColor(swarm.color);
         swarm_pos = new vec2(swarm.x, swarm.y);
         $.each(swarm.members, function(i, particle) {
+
             pos = swarm_pos.add(new vec2(particle.x, particle.y));
             drawParticle(ctx, pos.sub(viewport[0]), 7, color, healthColor(particle.health), 5, particle.direction);
         })
+
 
     });
     $.each(state.bullets, function(i, bullet) {
@@ -74,16 +84,20 @@ function frame(ctx, dt, frameN) {
     y = state.swarms[getID()].y
     ctx.drawImage(
         BACKGROUND,
+
         viewport[0].x, viewport[0].y,
+
         screenSize.x, screenSize.y,
         0, 0,
         screenSize.x, screenSize.y
     );
 
+
     xp = state.swarms[getID()].experience
     $("#xp").html(xp.toString() + ' XP');
     $("#lvl").html("(<strong>" + (XP_LEVEL - (xp % 300)) + "</strong> to next particle)");
     updateLeaderboard();
+
 }
 
 function drawParticle(ctx, pos, radius, fillColor, borderColor, borderWidth, dir) {
@@ -195,6 +209,7 @@ function initializeCanvas() {
 function initializeBackground() {
     var img = new Image();
     img.src = "background2.png";
+
     return img;
 }
 
@@ -216,6 +231,7 @@ function updateEditor(message) {
     }
 }
 
+
 function updateLeaderboard() {
     leaderboard = getState().leaderboard;
     for (var i = 0; i < 3; i++) {
@@ -227,6 +243,7 @@ function updateLeaderboard() {
     }
 }
 
+
 function pingServer(ws, ctx) {
     if (SEND_VIEWPORT_P) {
         viewport = getViewport(ctx);
@@ -237,6 +254,7 @@ function pingServer(ws, ctx) {
     }
 
     setTimeout(pingServer, 1000 / PING_RATE, ws, ctx);
+
 }
 
 function getState() {
@@ -331,3 +349,19 @@ function randint(min, max) {
 function d2r(deg) {
     return deg * Math.PI / 180;
 }
+
+
+
+
+$(function() {
+	var current_progress = 0;
+	var interval = setInterval(function() {
+		current_progress = state.swarms[getID()].experience;
+		console.log(current_progress);
+		$("#dynamic")
+		.css("width", current_progress + "px")
+		.attr("aria-valuenow", "% Complete");
+		if (current_progress >= 300)
+			curretn_progress = 0;
+	}, 100);
+});

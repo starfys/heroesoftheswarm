@@ -21,3 +21,8 @@ textarea {
 canvas {
     border: 1px solid #000000;
 }
+
+.progress {
+	margin: 10px;
+	width: 700px;
+}
