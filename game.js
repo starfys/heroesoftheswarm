@@ -6,8 +6,10 @@ const SEND_VIEWPORT_P = true;
 
 // ESR forgive me, for I have sinned
 var GLOBAL_STATE_NO_TOUCH;
+
 var GLOBAL_CONFIG_NO_TOUCH;
 var BACKGROUND;
+
 
 function init() {
     var foo = 0;
@@ -27,6 +29,7 @@ function init() {
     var ctx = initializeCanvas();
     BACKGROUND = initializeBackground();
     setTimeout(pingServer, 1000, ws, ctx);
+
     setTimeout(_loop, 1500, ctx, 1000 / FPS, 0);
     
     $("#upload-button").on('click', function(event) {
@@ -34,6 +37,7 @@ function init() {
     });
     $(document).ready(function(){
         $('[data-toggle="popover"]').popover();
+
     });
 }
 
@@ -47,9 +51,11 @@ function frame(ctx, dt, frameN) {
         color = ints2HexColor(swarm.color);
         swarm_pos = new vec2(swarm.x, swarm.y);
         $.each(swarm.members, function(i, particle) {
+
             pos = swarm_pos.add(new vec2(particle.x, particle.y));
             drawParticle(ctx, pos.sub(viewport[0]), 7, color, healthColor(particle.health), 5, particle.direction);
         })
+
     });
 
     $.each(state.bullets, function(i, bullet) {
@@ -63,6 +69,7 @@ function frame(ctx, dt, frameN) {
         drawBullet(ctx, pos.sub(viewport[0]), 10, color, 'white', bullet.direction);
     })
 
+
     x = state.swarms[getID()].x
     y = state.swarms[getID()].y
     ctx.drawImage(
@@ -74,6 +81,7 @@ function frame(ctx, dt, frameN) {
     );
 
     $("#xp").html(state.swarms[getID()].experience.toString());
+
 }
 
 function drawParticle(ctx, pos, radius, fillColor, borderColor, borderWidth, dir) {
@@ -138,6 +146,24 @@ function drawGrid(ctx, screenSize, spacing, color) {
     ctx.closePath();
 }
 
+function drawBullet(ctx, pos, length, playerColor, borderColor, dir) {
+    dir = d2r(dir);
+    var pos2 = pos.add(new vec2(Math.cos(dir), -Math.sin(dir)).times(length));
+
+    ctx.beginPath();
+    ctx.strokeStyle = borderColor;
+    ctx.moveTo(pos.x, pos.y-1);
+    ctx.lineTo(pos2.x, pos2.y-1);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.strokeStyle = playerColor;
+    ctx.moveTo(pos.x, pos.y);
+    ctx.lineTo(pos2.x, pos2.y);
+
+    ctx.stroke();
+}
+
 function initializeWebSocket(url, protocol, onmessage) {
     // Initialize the websocket
     var ws = new WebSocket(url, protocol);
@@ -182,6 +208,7 @@ function updateEditor(message) {
     }
 }
 
+
 function pingServer(ws, ctx) {
     if (SEND_VIEWPORT_P) {
         viewport = getViewport(ctx);
@@ -190,7 +217,9 @@ function pingServer(ws, ctx) {
     } else {
         ws.send('U');
     }
+
     setTimeout(pingServer, 1000 / PING_RATE, ws, ctx);
+
 }
 
 function getState() {
@@ -268,6 +297,7 @@ function d2r(deg) {
 
 // Takes an array of 3 ints: [red, green, blue] (each 0-255)
 function ints2HexColor(arr) {
+
     return '#' + ((arr[0] << 16) | (arr[1] << 8) | arr[2]).toString(16).padStart(6, '0');
 }
 
@@ -276,6 +306,7 @@ function healthColor(health) {
     r = 255 - g;
     b = 0;
     return ints2HexColor([r, g, b]);
+
 }
 
 function _loop(ctx, dt, frameN) {
