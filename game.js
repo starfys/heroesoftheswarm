@@ -3,6 +3,13 @@ const PROTOCOL = "heroesoftheswarm";
 const FPS = 60;
 const PING_RATE = 30;
 const SEND_VIEWPORT_P = true;
+const MAP_SIZE = new vec2(1600, 900);
+const XP_LEVEL = 300;
+
+// ESR forgive me, for I have sinned
+var GLOBAL_STATE_NO_TOUCH;
+var GLOBAL_CONFIG_NO_TOUCH;
+var BACKGROUND;
 
 // ESR forgive me, for I have sinned
 var GLOBAL_STATE_NO_TOUCH;
@@ -31,7 +38,7 @@ function init() {
     setTimeout(pingServer, 1000, ws, ctx);
 
     setTimeout(_loop, 1500, ctx, 1000 / FPS, 0);
-    
+
     $("#upload-button").on('click', function(event) {
         ws.send(JSON.stringify({program: $("#code").val()}));
     });
@@ -42,11 +49,14 @@ function init() {
 }
 
 function frame(ctx, dt, frameN) {
-    mapSize = new vec2(1600, 900);
     screenSize = new vec2(ctx.canvas.width, ctx.canvas.height);
     state = getState();
     viewport = getViewport(ctx);
     ctx.clearRect(0, 0, screenSize.x, screenSize.y);
+    if (checkDeath()) {
+        drawDeathText(ctx);
+        $("#respawn").removeClass("invisible").addClass("visible");
+    }
     $.each(state.swarms, function(id, swarm) {
         color = ints2HexColor(swarm.color);
         swarm_pos = new vec2(swarm.x, swarm.y);
@@ -56,8 +66,8 @@ function frame(ctx, dt, frameN) {
             drawParticle(ctx, pos.sub(viewport[0]), 7, color, healthColor(particle.health), 5, particle.direction);
         })
 
-    });
 
+    });
     $.each(state.bullets, function(i, bullet) {
         owner = state.swarms[bullet.owner];
         if (owner !== undefined) {
@@ -74,13 +84,19 @@ function frame(ctx, dt, frameN) {
     y = state.swarms[getID()].y
     ctx.drawImage(
         BACKGROUND,
-        280 + Math.floor(x) % 25, 210 + Math.floor(y) % 25,
+
+        viewport[0].x, viewport[0].y,
+
         screenSize.x, screenSize.y,
         0, 0,
         screenSize.x, screenSize.y
     );
 
-    $("#xp").html(state.swarms[getID()].experience.toString());
+
+    xp = state.swarms[getID()].experience
+    $("#xp").html(xp.toString() + ' XP');
+    $("#lvl").html("(<strong>" + (XP_LEVEL - (xp % 300)) + "</strong> to next particle)");
+    updateLeaderboard();
 
 }
 
@@ -164,6 +180,12 @@ function drawBullet(ctx, pos, length, playerColor, borderColor, dir) {
     ctx.stroke();
 }
 
+function drawDeathText(ctx) {
+    ctx.fillStyle = 'white';
+    ctx.font = '50px monospace';
+    ctx.fillText("YOU DIED", screenSize.x / 2 - 115, screenSize.y / 2);
+}
+
 function initializeWebSocket(url, protocol, onmessage) {
     // Initialize the websocket
     var ws = new WebSocket(url, protocol);
@@ -186,7 +208,8 @@ function initializeCanvas() {
 
 function initializeBackground() {
     var img = new Image();
-    img.src = "background.png";
+    img.src = "background2.png";
+
     return img;
 }
 
@@ -205,6 +228,18 @@ function updateEditor(message) {
            .addClass("btn-danger")
            .html("<strong>Compilation failed (hover)</strong>")
            .attr('data-content', message.error);
+    }
+}
+
+
+function updateLeaderboard() {
+    leaderboard = getState().leaderboard;
+    for (var i = 0; i < 3; i++) {
+        ctx = document.getElementById("leaderboardC"+i.toString()).getContext('2d');
+        ctx.globalCompositeOperation = 'destination-over';
+        ctx.fillStyle = ints2HexColor(leaderboard[i][0])
+        ctx.fillRect(0, 0, 25, 25);
+        $("#leaderboardS"+i.toString()).html(leaderboard[i][1].toString());
     }
 }
 
@@ -245,37 +280,22 @@ function getViewport(ctx) {
     swarm = state.swarms[id];
     center = new vec2(swarm.x, swarm.y);
     topLeft = center.sub(screenSize.times(.5));
-    bottomRight = center.add(screenSize.times(.5));
+    if (topLeft.x < 0) {
+        topLeft.x = 0;
+    }
+    if (topLeft.y < 0) {
+        topLeft.y = 0;
+    }
+    bottomRight = topLeft.add(screenSize);
+    if (bottomRight.x > MAP_SIZE.x) {
+        bottomRight.x = MAP_SIZE.x;
+        topLeft.x = MAP_SIZE.x - screenSize.x;
+    }
+    if (bottomRight.y > screenSize.y) {
+        bottomRight.y = screenSize.y;
+        topLeft.y = MAP_SIZE.y - screenSize.y;
+    }
     return [topLeft, bottomRight];
-}
-
-function vec2(x, y) {
-    this.x = x;
-    this.y = y;
-    this.add = function(rhs) {
-        return new vec2(this.x+rhs.x,this.y+rhs.y);
-    };
-    this.sub = function(rhs) {
-        return new vec2(this.x-rhs.x,this.y-rhs.y);
-    };
-    this.addX = function(rhs) {
-        return new vec2(this.x+rhs, this.y);
-    };
-    this.addY = function(rhs) {
-        return new vec2(this.x, this.y+addY);
-    };
-    this.magn = function() {
-        return Math.sqrt(Math.pow(this.x, 2)+Math.pow(this.y, 2));
-    };
-    this.dir = function() {
-        return new vec2(this.x / this.magn(), this.y / this.magn());
-    };
-    this.times = function(rhs) {
-        return new vec2(this.x * rhs, this.y * rhs);
-    };
-    this.coords = function() {
-        return { x: this.x, y: this.y };
-    };
 }
 
 function _loop(ctx, dt, frameN) {
@@ -293,6 +313,10 @@ function randint(min, max) {
 
 function d2r(deg) {
     return deg * Math.PI / 180;
+}
+
+function checkDeath() {
+    return getState().swarms[getID()].members.length == 0
 }
 
 // Takes an array of 3 ints: [red, green, blue] (each 0-255)
