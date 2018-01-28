@@ -92,6 +92,7 @@ function drawBullet(ctx, pos, length, playerColor, borderColor, dir) {
     ctx.strokeStyle = playerColor;
     ctx.moveTo(pos.x, pos.y);
     ctx.lineTo(pos2.x, pos2.y);
+
     ctx.stroke();
 }
 
@@ -197,4 +198,21 @@ function d2r(deg) {
 // Takes an array of 3 ints: [red, green, blue] (each 0-255)
 function ints2HexColor(arr) {
     return '#' + ((arr[0] << 16) | (arr[1] << 8) | arr[2]).toString(16);
+}
+
+function _loop(ctx, dt, frameN) {
+    frameN++;
+    var before = performance.now();
+    frame(ctx, dt, frameN);
+    var frameT = performance.now() - before;
+    dt = (1000 / FPS) - frameT;
+    setTimeout(_loop, dt, ctx, dt, frameN);
+}
+
+function randint(min, max) {
+    return Math.floor(Math.random() * (max - min) + min);
+}
+
+function d2r(deg) {
+    return deg * Math.PI / 180;
 }
