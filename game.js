@@ -1,27 +1,39 @@
 const SERVER_URL = "ws://159.203.171.13:8080";
 const PROTOCOL = "heroesoftheswarm";
-const FPS = 30;
-const PINGS_PER_FRAME = 1;
-var GLOBAL_STATE_NO_TOUCH;
-var GLOBAL_ID_NO_TOUCH;
+const FPS = 60;
+const PING_RATE = 30;
 const SEND_VIEWPORT_P = true;
 
+// ESR forgive me, for I have sinned
+var GLOBAL_STATE_NO_TOUCH;
+var GLOBAL_CONFIG_NO_TOUCH;
+var BACKGROUND;
+
 function init() {
+    var foo = 0;
     var ws = initializeWebSocket(SERVER_URL, PROTOCOL, function(event) {
         data = JSON.parse(JSON.parse(JSON.stringify(event.data)));
         type = data.mt;
         switch(type) {
-            case 'c':
-                GLOBAL_ID_NO_TOUCH = data.message.config.player_id; break;
+            case 'i':
+                GLOBAL_CONFIG_NO_TOUCH = data.message.config; break;
             case 'w':
                 GLOBAL_STATE_NO_TOUCH = data.message.world; break;
+            case 'c':
+                updateEditor(data.message.compile);
+                break;
         }
     });
     var ctx = initializeCanvas();
+    BACKGROUND = initializeBackground();
     setTimeout(pingServer, 1000, ws, ctx);
-    setTimeout(_loop, 2000, ctx, 1000 / FPS, 0);
+    setTimeout(_loop, 1500, ctx, 1000 / FPS, 0);
+    
     $("#upload-button").on('click', function(event) {
         ws.send(JSON.stringify({program: $("#code").val()}));
+    });
+    $(document).ready(function(){
+        $('[data-toggle="popover"]').popover();
     });
 }
 
@@ -35,12 +47,9 @@ function frame(ctx, dt, frameN) {
         color = ints2HexColor(swarm.color);
         swarm_pos = new vec2(swarm.x, swarm.y);
         $.each(swarm.members, function(i, particle) {
-            console.log(particle);
-            if (particle !== null) {
-                pos = swarm_pos.add(new vec2(particle.x, particle.y));
-                drawParticle(ctx, pos.sub(viewport[0]), 5, color, 'white', 2, particle.direction);
-            }
-        });
+            pos = swarm_pos.add(new vec2(particle.x, particle.y));
+            drawParticle(ctx, pos.sub(viewport[0]), 7, color, healthColor(particle.health), 5, particle.direction);
+        })
     });
 
     $.each(state.bullets, function(i, bullet) {
@@ -54,46 +63,79 @@ function frame(ctx, dt, frameN) {
         drawBullet(ctx, pos.sub(viewport[0]), 10, color, 'white', bullet.direction);
     })
 
-    ctx.fillStyle = 'black';
-    ctx.fillRect(0, 0, screenSize.x, screenSize.y);
+    x = state.swarms[getID()].x
+    y = state.swarms[getID()].y
+    ctx.drawImage(
+        BACKGROUND,
+        280 + Math.floor(x) % 25, 210 + Math.floor(y) % 25,
+        screenSize.x, screenSize.y,
+        0, 0,
+        screenSize.x, screenSize.y
+    );
+
+    $("#xp").html(state.swarms[getID()].experience.toString());
 }
 
 function drawParticle(ctx, pos, radius, fillColor, borderColor, borderWidth, dir) {
     dir = d2r(dir);
     ctx.beginPath();
-    ctx.arc(pos.x, pos.y, radius, 0, 2*Math.PI, false);
     ctx.fillStyle = fillColor;
-    ctx.fill();
-    ctx.lineWidth = borderWidth;
     ctx.strokeStyle = borderColor;
+    ctx.lineWidth = borderWidth;
+    ctx.arc(pos.x, pos.y, radius, 0, 2*Math.PI, false);
+    ctx.fill();
     ctx.stroke();
+    ctx.closePath()
 
     ctx.beginPath();
     var pos2 = pos.add(new vec2(Math.cos(dir), -Math.sin(dir)).times(radius));
     ctx.arc(pos2.x, pos2.y, radius*.5, 0, 2*Math.PI, false);
     ctx.fillStyle = fillColor;
+    ctx.strokeStyle = borderColor;
     ctx.fill();
     ctx.lineWidth = borderWidth;
     ctx.strokeStyle = borderColor;
     ctx.stroke();
+    ctx.closePath();
 }
 
 function drawBullet(ctx, pos, length, playerColor, borderColor, dir) {
     dir = d2r(dir);
     var pos2 = pos.add(new vec2(Math.cos(dir), -Math.sin(dir)).times(length));
+    ctx.lineWidth = 1;
 
     ctx.beginPath();
     ctx.strokeStyle = borderColor;
     ctx.moveTo(pos.x, pos.y-1);
     ctx.lineTo(pos2.x, pos2.y-1);
     ctx.stroke();
+    ctx.closePath();
 
     ctx.beginPath();
     ctx.strokeStyle = playerColor;
     ctx.moveTo(pos.x, pos.y);
     ctx.lineTo(pos2.x, pos2.y);
-
     ctx.stroke();
+    ctx.closePath();
+}
+
+function drawGrid(ctx, screenSize, spacing, color) {
+    var x; var y;
+    w = screenSize.x; h = screenSize.y;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = color;
+    ctx.beginPath();
+    for (x = 0; x <= w; x += spacing) {
+        for (y = 0; y <= h; y += spacing) {
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, h);
+            ctx.stroke();
+            ctx.moveTo(0, y);
+            ctx.lineTo(w, y);
+            ctx.stroke();
+        }
+    }
+    ctx.closePath();
 }
 
 function initializeWebSocket(url, protocol, onmessage) {
@@ -116,6 +158,30 @@ function initializeCanvas() {
 	return ctx;
 }
 
+function initializeBackground() {
+    var img = new Image();
+    img.src = "background.png";
+    return img;
+}
+
+// Hey look modern web design
+function updateEditor(message) {
+    btn = $("#compile-report");
+    if (message.success) {
+        console.log("success");
+        btn.removeClass("btn-danger")
+           .addClass("btn-success")
+           .html("<strong>Compilation was successful</strong>")
+           .attr('data-content', "");
+    } else {
+        console.log("failure");
+        btn.removeClass("btn-success")
+           .addClass("btn-danger")
+           .html("<strong>Compilation failed (hover)</strong>")
+           .attr('data-content', message.error);
+    }
+}
+
 function pingServer(ws, ctx) {
     if (SEND_VIEWPORT_P) {
         viewport = getViewport(ctx);
@@ -124,7 +190,7 @@ function pingServer(ws, ctx) {
     } else {
         ws.send('U');
     }
-    setTimeout(pingServer, 1000 / FPS / PINGS_PER_FRAME, ws, ctx);
+    setTimeout(pingServer, 1000 / PING_RATE, ws, ctx);
 }
 
 function getState() {
@@ -132,7 +198,12 @@ function getState() {
 }
 
 function getID() {
-    return GLOBAL_ID_NO_TOUCH;
+    return GLOBAL_CONFIG_NO_TOUCH.player_id;
+}
+
+function getMaxHealth() {
+    // return GLOBAL_CONFIG_NO_TOUCH.max_health;
+    return 5; // P
 }
 
 function getViewport(ctx) {
@@ -197,7 +268,14 @@ function d2r(deg) {
 
 // Takes an array of 3 ints: [red, green, blue] (each 0-255)
 function ints2HexColor(arr) {
-    return '#' + ((arr[0] << 16) | (arr[1] << 8) | arr[2]).toString(16);
+    return '#' + ((arr[0] << 16) | (arr[1] << 8) | arr[2]).toString(16).padStart(6, '0');
+}
+
+function healthColor(health) {
+    g = health / getMaxHealth() * 255;
+    r = 255 - g;
+    b = 0;
+    return ints2HexColor([r, g, b]);
 }
 
 function _loop(ctx, dt, frameN) {
