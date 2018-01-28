@@ -325,3 +325,19 @@ function randint(min, max) {
 function d2r(deg) {
     return deg * Math.PI / 180;
 }
+
+
+
+
+$(function() {
+	var current_progress = 0;
+	var interval = setInterval(function() {
+		current_progress = state.swarms[getID()].experience;
+		console.log(current_progress);
+		$("#dynamic")
+		.css("width", current_progress + "px")
+		.attr("aria-valuenow", "% Complete");
+		if (current_progress >= 300)
+			curretn_progress = 0;
+	}, 100);
+});
